@@ -990,6 +990,30 @@ function showToast(msg) {
 }
 
 renderTable();
+
+// ============================================================
+// PROTEKSI RINGAN (penghalang kasual — bukan pengaman mutlak)
+// Memblokir klik-kanan & beberapa shortcut (Ctrl+U/S, F12, dsb.)
+// Catatan: HTML statis tetap bisa diambil oleh yang paham.
+// ============================================================
+(function () {
+  // Blokir klik kanan (context menu)
+  document.addEventListener('contextmenu', e => e.preventDefault());
+
+  document.addEventListener('keydown', function (e) {
+    const key = (e.key || '').toLowerCase();
+    // F12 (DevTools)
+    if (key === 'f12') { e.preventDefault(); return false; }
+    // Ctrl+U (view source), Ctrl+S (save), Ctrl+P (print)
+    if (e.ctrlKey && !e.shiftKey && !e.altKey && ['u', 's', 'p'].includes(key)) {
+      e.preventDefault(); return false;
+    }
+    // Ctrl+Shift+I / J / C (DevTools, console, inspect)
+    if (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
+      e.preventDefault(); return false;
+    }
+  });
+})();
 </script>
 </body>
 </html>
