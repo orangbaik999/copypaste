@@ -403,6 +403,37 @@
   .filter-btn[data-bank].active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
   .filter-btn[data-bank].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
 
+  /* Chip CUSTOM (ditambahkan user) */
+  .filter-btn.custom { color: var(--warning); border-color: rgba(255,184,48,0.55); background: rgba(255,184,48,0.10); }
+  .filter-btn.custom.active { background: var(--warning); border-color: var(--warning); color: #231a00; }
+  .filter-btn.custom.active .cnt { background: rgba(0,0,0,0.22); color: #231a00; }
+  .chip-x {
+    margin-left: 2px;
+    font-size: 11px;
+    line-height: 1;
+    opacity: 0.7;
+    padding: 1px 3px;
+    border-radius: 50%;
+    transition: all 0.15s;
+  }
+  .chip-x:hover { opacity: 1; background: rgba(255,77,109,0.85); color: #fff; }
+
+  /* Tombol Tambah Filter */
+  .filter-add {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px dashed var(--accent);
+    background: rgba(0,229,160,0.08);
+    color: var(--accent);
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .filter-add:hover { background: rgba(0,229,160,0.18); transform: translateY(-1px); }
+
   /* ===== WARNA PER JENIS E-WALLET (dipakai baris & panel) ===== */
   /* Aksen kiri + tint latar tiap baris sesuai e-wallet */
   tbody tr.ew-DANA      { box-shadow: inset 3px 0 0 #33aaff; background: rgba(51,170,255,0.05); }
@@ -620,9 +651,44 @@ function getFilterKey(b) {
 let currentFilter = 'ALL';
 const EWALLETS = ['DANA', 'GOPAY', 'LINKAJA', 'OVO', 'SHOPEEPAY'];
 
+// Filter custom yang ditambahkan user (disimpan di localStorage agar tidak hilang saat refresh)
+let customFilters = loadCustomFilters();
+
+function loadCustomFilters() {
+  try {
+    const raw = localStorage.getItem('customFilters');
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter(x => typeof x === 'string') : [];
+  } catch (e) { return []; }
+}
+function saveCustomFilters() {
+  try { localStorage.setItem('customFilters', JSON.stringify(customFilters)); } catch (e) {}
+}
+
+function addCustomFilter() {
+  let name = prompt('Masukkan nama filter bank / e-wallet baru:\n(mis. ASTRAPAY, SEABANK, BLU, JAGO)');
+  if (name === null) return;
+  name = name.trim().toUpperCase();
+  if (!name) { showToast('Nama filter kosong!'); return; }
+  const exists = customFilters.includes(name) || EWALLETS.includes(name);
+  if (exists) { showToast('Filter "' + name + '" sudah ada!'); setFilter(name); return; }
+  customFilters.push(name);
+  saveCustomFilters();
+  showToast('✓ Filter "' + name + '" ditambahkan');
+  setFilter(name);
+}
+
+function removeCustomFilter(name) {
+  customFilters = customFilters.filter(x => x !== name);
+  saveCustomFilters();
+  if (currentFilter === name) currentFilter = 'ALL';
+  showToast('Filter "' + name + '" dihapus');
+  renderTable();
+}
+
 function setFilter(type) {
   currentFilter = type;
-  // Nuansa warna panel hanya untuk e-wallet; bank/ALL = netral
+  // Nuansa warna panel hanya untuk e-wallet; bank/custom/ALL = netral
   const wrap = document.getElementById('tableWrap');
   if (wrap) {
     if (EWALLETS.includes(type)) wrap.setAttribute('data-filter', type);
@@ -633,42 +699,75 @@ function setFilter(type) {
 
 function rowMatchesFilter(r) {
   if (currentFilter === 'ALL') return true;
+  // Filter custom: cocokkan jika teks bank MENGANDUNG kata kunci
+  if (customFilters.includes(currentFilter)) {
+    return (r.bank || '').toUpperCase().includes(currentFilter);
+  }
   return getFilterKey(r.bank) === currentFilter;
 }
 
-// Bangun chip filter secara dinamis: Semua + e-wallet (tetap) + bank (sesuai data)
+// Bangun chip filter secara dinamis: Semua + e-wallet + bank (data) + custom + tombol Tambah
 function renderFilterChips() {
   const box = document.getElementById('filterChips');
   if (!box) return;
 
-  // Hitung jumlah per kunci
+  // Hitung jumlah per kunci (untuk e-wallet & bank bawaan)
   const counts = {};
   rows.forEach(r => {
     const k = getFilterKey(r.bank);
     counts[k] = (counts[k] || 0) + 1;
   });
 
-  // Kelompok bank = semua kunci yang bukan e-wallet, urut jumlah terbanyak
+  // Bank bawaan = kunci non-e-wallet yang bukan filter custom, urut terbanyak
   const bankKeys = Object.keys(counts)
-    .filter(k => !EWALLETS.includes(k))
+    .filter(k => !EWALLETS.includes(k) && !customFilters.includes(k))
     .sort((a, b) => counts[b] - counts[a]);
 
   const chips = [];
-  // Semua
   chips.push(chipHTML('ALL', 'Semua', rows.length, false));
-  // E-wallet (selalu tampil, dengan warna khasnya)
   EWALLETS.forEach(k => chips.push(chipHTML(k, k, counts[k] || 0, true)));
-  // Bank (dinamis dari data)
   bankKeys.forEach(k => chips.push(chipHTML(k, k, counts[k], false)));
+
+  // Chip custom (dengan tombol hapus ✕); jumlah = baris yang bank-nya mengandung kata kunci
+  customFilters.forEach(name => {
+    const cnt = rows.filter(r => (r.bank || '').toUpperCase().includes(name)).length;
+    const active = currentFilter === name ? ' active' : '';
+    const safe = name.replace(/'/g, "\\'");
+    const style = chipColorStyle(name, currentFilter === name);
+    chips.push(
+      `<button class="filter-btn custom${active}" data-custom="1" style="${style}" onclick="setFilter('${safe}')">` +
+      `${name} <span class="cnt">${cnt}</span>` +
+      `<span class="chip-x" title="Hapus filter" onclick="event.stopPropagation();removeCustomFilter('${safe}')">✕</span>` +
+      `</button>`
+    );
+  });
+
+  // Tombol Tambah
+  chips.push(`<button class="filter-add" onclick="addCustomFilter()" title="Tambah filter bank/e-wallet">＋ Tambah</button>`);
 
   box.innerHTML = chips.join('');
 }
 
+// Warna konsisten dari nama (hash → hue) untuk chip bank & custom
+function hueFromName(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+  return h % 360;
+}
+function chipColorStyle(name, active) {
+  const h = hueFromName(String(name));
+  if (active) return `background:hsl(${h},58%,48%);border-color:hsl(${h},58%,48%);color:#fff;`;
+  return `color:hsl(${h},78%,72%);border-color:hsla(${h},70%,60%,0.6);background:hsla(${h},70%,55%,0.12);`;
+}
+
 function chipHTML(key, label, count, isEwallet) {
   const active = currentFilter === key ? ' active' : '';
-  const attr = isEwallet ? ` data-ewallet="${key}"` : (key === 'ALL' ? ' data-ewallet="ALL"' : ' data-bank="1"');
+  let attr = '', style = '';
+  if (isEwallet) { attr = ` data-ewallet="${key}"`; }
+  else if (key === 'ALL') { attr = ' data-ewallet="ALL"'; }
+  else { attr = ' data-bank="1"'; style = ` style="${chipColorStyle(key, currentFilter === key)}"`; }
   const safeKey = String(key).replace(/'/g, "\\'");
-  return `<button class="filter-btn${active}"${attr} onclick="setFilter('${safeKey}')">${label} <span class="cnt">${count}</span></button>`;
+  return `<button class="filter-btn${active}"${attr}${style} onclick="setFilter('${safeKey}')">${label} <span class="cnt">${count}</span></button>`;
 }
 
 function renderTable() {
