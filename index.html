@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Withdrawal Table</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #0b0d14;
+    --surface: #141824;
+    --surface2: #1b2030;
+    --surface3: #222838;
+    --border: #272e42;
+    --border-soft: #1f2536;
+    --accent: #00e5a0;
+    --accent2: #0099ff;
+    --title-purple: #a855f7;
+    --danger: #ff4d6d;
+    --warning: #ffb830;
+    --text: #eef0f6;
+    --text2: #9aa3bd;
+    --text3: #646d87;
+    --radius: 14px;
+    --radius-sm: 9px;
+    --shadow: 0 8px 28px rgba(0,0,0,0.38);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,0.25);
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scrollbar-color: var(--border) transparent; }
+
+  body {
+    background:
+      radial-gradient(1200px 600px at 12% -5%, rgba(168,85,247,0.10), transparent 55%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(0,153,255,0.08), transparent 50%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 20px 22px 28px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Scrollbar halus */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--surface3); background-clip: content-box; }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, var(--title-purple), var(--accent2));
+    box-shadow: 0 4px 16px rgba(168,85,247,0.4);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .brand-logo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.18);
+    pointer-events: none;
+  }
+  .brand-gif {
+    height: 46px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,0.5));
+  }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.15; justify-content: center; }
+  .brand-name {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    background: linear-gradient(90deg, #c89bff, var(--accent2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+  }
+  .brand-sub { font-size: 10.5px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.04em; }
+  .title { font-size: 17px; font-weight: 700; letter-spacing: 0.04em; color: var(--title-purple); }
+  .counter {
+    font-size: 11.5px;
+    color: var(--text2);
+    font-family: var(--mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* STAT CARDS */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(145deg, var(--surface), var(--surface2));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
+  .stat-item.danger::before { background: var(--danger); }
+  .stat-ico {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    background: rgba(0,229,160,0.12);
+    flex-shrink: 0;
+  }
+  .stat-item.danger .stat-ico { background: rgba(255,77,109,0.12); }
+  .stat-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .stat-label { font-size: 10.5px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stat-value { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--danger); line-height: 1; }
+  .stat-count { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); line-height: 1; }
+
+  /* NOREK DISPLAY */
+  .norek-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+  }
+  .norek-label { font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .norek-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: text;
+  }
+  .norek-nama { font-size: 12px; color: var(--text2); white-space: nowrap; }
+
+  /* BUTTONS */
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--surface2); border-color: var(--accent2); color: var(--accent2); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { border-color: var(--accent); color: var(--accent); }
+  .btn-primary:hover { background: rgba(0,229,160,0.1); color: var(--accent); border-color: var(--accent); }
+  .btn-danger { border-color: rgba(255,77,109,0.5); color: var(--danger); }
+  .btn-danger:hover { background: rgba(255,77,109,0.12); color: var(--danger); border-color: var(--danger); }
+  .btn-copy-all { border-color: var(--accent2); color: var(--accent2); }
+  .btn-copy-all:hover { background: rgba(0,153,255,0.1); }
+
+  /* TABLE WRAPPER */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: auto;
+    max-height: calc(100vh - 320px);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    min-width: 1100px;
+  }
+
+  /* STICKY HEADER */
+  thead { position: sticky; top: 0; z-index: 10; }
+  thead tr { background: linear-gradient(180deg, var(--surface3), var(--surface2)); }
+  th {
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border-soft);
+    white-space: nowrap;
+  }
+  th:last-child { border-right: none; }
+  .th-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 6px;
+  }
+  .th-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .btn-copy-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-weight: 600;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-copy-col:hover { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .btn-copy-col.copied { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* ROWS */
+  tbody tr {
+    border-bottom: 1px solid var(--border-soft);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  tbody tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(0,229,160,0.05); }
+  tbody tr.selected { background: rgba(0,229,160,0.09) !important; box-shadow: inset 3px 0 0 var(--accent); }
+  tbody tr.just-copied { background: rgba(0,229,160,0.2) !important; }
+
+  td {
+    padding: 9px 10px;
+    border-right: 1px solid var(--border-soft);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  td:last-child { border-right: none; }
+
+  /* NOREK CELL - bisa di-select */
+  .norek-cell {
+    color: var(--accent2);
+    font-weight: 600;
+    user-select: text;
+    cursor: text;
+  }
+
+  /* COPY BTN PER BARIS */
+  .btn-row-copy {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 10px;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-weight: 700;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-row-copy:hover { background: var(--accent); color: #000; }
+  .btn-row-copy.copied { background: var(--accent); color: #000; }
+
+  .nominal-cell { color: var(--danger); font-weight: 600; }
+  .bank-dana { color: #33aaff; }
+  .bank-gopay { color: #00bcd4; }
+  .bank-linkaja { color: #ff5252; }
+  .bank-ovo { color: #a855f7; }
+  .bank-shopee { color: #ff7043; }
+
+  /* FILTER E-WALLET */
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .filter-label {
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    margin-right: 4px;
+  }
+  .filter-btn {
+    padding: 7px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-btn:hover { border-color: var(--accent2); color: var(--text); transform: translateY(-1px); }
+  .filter-btn .cnt {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--surface2);
+    padding: 1px 6px;
+    border-radius: 10px;
+    color: var(--text2);
+  }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
+  .filter-btn.active .cnt { background: rgba(0,0,0,0.2); color: #000; }
+  .filter-btn[data-ewallet="DANA"].active { background: #33aaff; border-color: #33aaff; color: #fff; }
+  .filter-btn[data-ewallet="GOPAY"].active { background: #00bcd4; border-color: #00bcd4; color: #fff; }
+  .filter-btn[data-ewallet="LINKAJA"].active { background: #ff5252; border-color: #ff5252; color: #fff; }
+  .filter-btn[data-ewallet="OVO"].active { background: #a855f7; border-color: #a855f7; color: #fff; }
+  .filter-btn[data-ewallet="SHOPEEPAY"].active { background: #ff7043; border-color: #ff7043; color: #fff; }
+  .filter-btn[data-ewallet].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
+
+  /* ===== WARNA PER JENIS E-WALLET (dipakai baris & panel) ===== */
+  /* Aksen kiri + tint latar tiap baris sesuai e-wallet */
+  tbody tr.ew-DANA      { box-shadow: inset 3px 0 0 #33aaff; background: rgba(51,170,255,0.05); }
+  tbody tr.ew-GOPAY     { box-shadow: inset 3px 0 0 #00bcd4; background: rgba(0,188,212,0.05); }
+  tbody tr.ew-LINKAJA   { box-shadow: inset 3px 0 0 #ff5252; background: rgba(255,82,82,0.05); }
+  tbody tr.ew-OVO       { box-shadow: inset 3px 0 0 #a855f7; background: rgba(168,85,247,0.05); }
+  tbody tr.ew-SHOPEEPAY { box-shadow: inset 3px 0 0 #ff7043; background: rgba(255,112,67,0.05); }
+  tbody tr.ew-DANA:hover      { background: rgba(51,170,255,0.12); }
+  tbody tr.ew-GOPAY:hover     { background: rgba(0,188,212,0.12); }
+  tbody tr.ew-LINKAJA:hover   { background: rgba(255,82,82,0.12); }
+  tbody tr.ew-OVO:hover       { background: rgba(168,85,247,0.12); }
+  tbody tr.ew-SHOPEEPAY:hover { background: rgba(255,112,67,0.12); }
+
+  /* Saat sebuah filter aktif, panel & header tabel bernuansa warna e-wallet */
+  .table-wrap { transition: border-color 0.2s, box-shadow 0.2s; }
+  .table-wrap[data-filter="DANA"]      { border-color: #33aaff; box-shadow: 0 0 0 1px rgba(51,170,255,0.4); }
+  .table-wrap[data-filter="GOPAY"]     { border-color: #00bcd4; box-shadow: 0 0 0 1px rgba(0,188,212,0.4); }
+  .table-wrap[data-filter="LINKAJA"]   { border-color: #ff5252; box-shadow: 0 0 0 1px rgba(255,82,82,0.4); }
+  .table-wrap[data-filter="OVO"]       { border-color: #a855f7; box-shadow: 0 0 0 1px rgba(168,85,247,0.4); }
+  .table-wrap[data-filter="SHOPEEPAY"] { border-color: #ff7043; box-shadow: 0 0 0 1px rgba(255,112,67,0.4); }
+  .table-wrap[data-filter="DANA"]      thead tr { background: rgba(51,170,255,0.14); }
+  .table-wrap[data-filter="GOPAY"]     thead tr { background: rgba(0,188,212,0.14); }
+  .table-wrap[data-filter="LINKAJA"]   thead tr { background: rgba(255,82,82,0.14); }
+  .table-wrap[data-filter="OVO"]       thead tr { background: rgba(168,85,247,0.14); }
+  .table-wrap[data-filter="SHOPEEPAY"] thead tr { background: rgba(255,112,67,0.14); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 13px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+    pointer-events: none;
+    max-width: 340px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* PASTE AREA */
+  .paste-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .paste-area textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 64px;
+    max-height: 140px;
+    transition: border-color 0.15s;
+  }
+  .paste-area textarea:focus { border-color: var(--accent); border-style: solid; }
+  .paste-area textarea::placeholder { color: var(--text3); }
+  .paste-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .paste-label { font-size: 12px; color: var(--text2); font-weight: 600; margin-right: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="brand">
+      <img class="brand-gif" src="assets/toto12.gif" alt="TOTO12" />
+    </div>
+    <span class="counter" id="counter">0 / 5000 data</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-ico">📊</div>
+    <div class="stat-body">
+      <span class="stat-label">Total Data</span>
+      <span class="stat-count" id="statCount">0</span>
+    </div>
+  </div>
+  <div class="stat-item danger">
+    <div class="stat-ico">💸</div>
+    <div class="stat-body">
+      <span class="stat-label">Total Nominal</span>
+      <span class="stat-value" id="statNominal">Rp 0</span>
+    </div>
+  </div>
+</div>
+
+<!-- FILTER E-WALLET -->
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">🔎 Filter E-Wallet:</span>
+  <button class="filter-btn active" data-ewallet="ALL" onclick="setFilter('ALL')">Semua <span class="cnt" id="cnt-ALL">0</span></button>
+  <button class="filter-btn" data-ewallet="DANA" onclick="setFilter('DANA')">DANA <span class="cnt" id="cnt-DANA">0</span></button>
+  <button class="filter-btn" data-ewallet="GOPAY" onclick="setFilter('GOPAY')">GOPAY <span class="cnt" id="cnt-GOPAY">0</span></button>
+  <button class="filter-btn" data-ewallet="LINKAJA" onclick="setFilter('LINKAJA')">LINKAJA <span class="cnt" id="cnt-LINKAJA">0</span></button>
+  <button class="filter-btn" data-ewallet="OVO" onclick="setFilter('OVO')">OVO <span class="cnt" id="cnt-OVO">0</span></button>
+  <button class="filter-btn" data-ewallet="SHOPEEPAY" onclick="setFilter('SHOPEEPAY')">SHOPEEPAY <span class="cnt" id="cnt-SHOPEEPAY">0</span></button>
+</div>
+
+<!-- PASTE AREA -->
+<div class="paste-area">
+  <div class="paste-row">
+    <span class="paste-label">📥 Paste data dari sistem di sini, lalu klik Parse:</span>
+    <button class="btn btn-primary" style="padding:4px 14px;font-size:11px" onclick="parseFromTextarea()">▶ Parse</button>
+    <button class="btn" style="padding:4px 14px;font-size:11px" onclick="clearTextarea()">Bersihkan</button>
+  </div>
+  <textarea id="pasteArea" placeholder="Paste data di sini... (bisa langsung Ctrl+V)"></textarea>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap" id="tableWrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th style="width:32px"><div class="th-inner"><span class="th-name">#</span></div></th>
+        <th style="width:125px; cursor:pointer" id="thTgl" onclick="toggleSortByTgl()"><div class="th-inner"><button class="btn-copy-col" onclick="event.stopPropagation(); copyCol('tgl')">Copy</button><span class="th-name">Tanggal <span id="sortIcon">⇅</span></span></div></th>
+        <th style="width:70px"><div class="th-inner"><button class="btn-copy-col" onclick="copyCol('bank')">Copy</button><span class="th-name">Bank</span></div></th>
+        <th style="width:160px"><div class="th-inner"><button class="btn-copy-col" onclick="copyCol('nama')">Copy</button><span class="th-name">Nama</span></div></th>
+        <th style="width:110px"><div class="th-inner"><button class="btn-copy-col" onclick="copyCol('userid')">Copy</button><span class="th-name">User ID</span></div></th>
+        <th style="width:120px"><div class="th-inner"><button class="btn-copy-col" onclick="copyCol('nominal')">Copy</button><span class="th-name">Nominal</span></div></th>
+        <th style="width:140px"><div class="th-inner"><button class="btn-copy-col" onclick="copyCol('catatan')">Copy</button><span class="th-name">Catatan</span></div></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let rows = [];
+const MAX = 5000;
+
+function getBankClass(b) {
+  const t = getEwalletType(b);
+  if (t === 'DANA') return 'bank-dana';
+  if (t === 'GOPAY') return 'bank-gopay';
+  if (t === 'LINKAJA') return 'bank-linkaja';
+  if (t === 'OVO') return 'bank-ovo';
+  if (t === 'SHOPEEPAY') return 'bank-shopee';
+  return '';
+}
+
+// Deteksi jenis e-wallet dari teks bank; return salah satu tipe atau null
+function getEwalletType(b) {
+  if (!b) return null;
+  const u = b.toUpperCase();
+  if (u.includes('DANA')) return 'DANA';
+  if (u.includes('GOPAY') || u.includes('GO-PAY') || u.includes('GO PAY')) return 'GOPAY';
+  if (u.includes('LINK')) return 'LINKAJA';
+  if (u.includes('OVO')) return 'OVO';
+  if (u.includes('SHOPEE')) return 'SHOPEEPAY';
+  return null;
+}
+
+// ============================================================
+// FILTER E-WALLET
+// ============================================================
+let currentFilter = 'ALL';
+
+function setFilter(type) {
+  currentFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-ewallet') === type);
+  });
+  // Beri nuansa warna panel sesuai e-wallet; 'ALL' = tanpa nuansa
+  const wrap = document.getElementById('tableWrap');
+  if (wrap) {
+    if (type === 'ALL') wrap.removeAttribute('data-filter');
+    else wrap.setAttribute('data-filter', type);
+  }
+  renderTable();
+}
+
+function rowMatchesFilter(r) {
+  if (currentFilter === 'ALL') return true;
+  return getEwalletType(r.bank) === currentFilter;
+}
+
+function updateFilterCounts() {
+  const counts = { ALL: rows.length, DANA: 0, GOPAY: 0, LINKAJA: 0, OVO: 0, SHOPEEPAY: 0 };
+  rows.forEach(r => {
+    const t = getEwalletType(r.bank);
+    if (t && counts[t] !== undefined) counts[t]++;
+  });
+  Object.keys(counts).forEach(k => {
+    const el = document.getElementById('cnt-' + k);
+    if (el) el.textContent = counts[k];
+  });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  updateFilterCounts();
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div><p>Belum ada data. Paste data di kotak atas lalu klik Parse.</p></div></td></tr>`;
+    updateStats();
+    return;
+  }
+  // Pasangkan baris dengan indeks aslinya lalu filter sesuai e-wallet terpilih
+  const visible = rows.map((r, i) => ({ r, i })).filter(({ r }) => rowMatchesFilter(r));
+  if (visible.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">🔎</div><p>Tidak ada data untuk filter <b>${currentFilter}</b>.</p></div></td></tr>`;
+    updateStats();
+    return;
+  }
+  tbody.innerHTML = visible.map(({ r, i }) => `
+    <tr id="row-${i}" onclick="selectRow(${i})" class="${getEwalletType(r.bank) ? 'ew-' + getEwalletType(r.bank) : ''}">
+      <td style="text-align:center;color:var(--text2)">${i+1}</td>
+      <td>${r.tgl||''}</td>
+      <td class="${getBankClass(r.bank)}" style="font-weight:600">${r.bank||''}</td>
+      <td>${r.nama||''}</td>
+      <td>${r.userid||''}</td>
+      <td class="nominal-cell">${r.nominal||''}</td>
+      <td>${r.catatan||''}</td>
+    </tr>
+  `).join('');
+  updateStats();
+}
+
+function updateStats() {
+  // Counter kapasitas selalu memakai total seluruh data
+  document.getElementById('counter').textContent = rows.length + ' / ' + MAX + ' data';
+  // Statistik mengikuti filter e-wallet yang sedang aktif
+  const shown = rows.filter(rowMatchesFilter);
+  document.getElementById('statCount').textContent = shown.length;
+  let total = 0;
+  shown.forEach(r => {
+    const n = parseInt((r.nominal||'').replace(/[^\d]/g,''));
+    if (!isNaN(n)) total += n;
+  });
+  document.getElementById('statNominal').textContent = '- Rp ' + total.toLocaleString('id-ID');
+}
+
+// ============================================================
+// SORT BY TANGGAL/JAM
+// ============================================================
+let sortDir = null; // null = belum diurutkan, 'desc' = terbaru->terlama, 'asc' = terlama->terbaru
+
+function parseTglToDate(tglStr) {
+  // Format: "28-Jul-2026 20:15"
+  if (!tglStr) return null;
+  const bulan = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
+  const m = tglStr.match(/(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const [, d, mon, y, h, min] = m;
+  if (!(mon in bulan)) return null;
+  return new Date(+y, bulan[mon], +d, +h, +min);
+}
+
+function toggleSortByTgl() {
+  if (rows.length === 0) { showToast('Tidak ada data untuk diurutkan!'); return; }
+
+  // Cycle: null/asc -> desc (terbaru->terlama) -> asc (terlama->terbaru) -> desc ...
+  sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
+
+  rows.sort((a, b) => {
+    const da = parseTglToDate(a.tgl);
+    const db = parseTglToDate(b.tgl);
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+    return sortDir === 'desc' ? (db - da) : (da - db);
+  });
+
+  document.getElementById('sortIcon').textContent = sortDir === 'desc' ? '↓ Terbaru' : '↑ Terlama';
+  renderTable();
+  showToast(sortDir === 'desc' ? '✓ Diurutkan: Terbaru → Terlama' : '✓ Diurutkan: Terlama → Terbaru');
+}
+
+function selectRow(i) {
+  document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('selected'));
+  const tr = document.getElementById('row-'+i);
+  if (tr) tr.classList.add('selected');
+  const r = rows[i];
+  const nd = document.getElementById('norekDisplay');
+  const nn = document.getElementById('norekNama');
+  if (nd) nd.value = r.norek || '-';
+  if (nn) nn.textContent = r.nama || '';
+  // Auto copy
+  if (r.norek) {
+    navigator.clipboard.writeText(r.norek).then(() => {
+      showToast('✓ No.Rek ' + r.norek + ' di-copy!');
+      tr.classList.add('just-copied');
+      setTimeout(() => tr.classList.remove('just-copied'), 800);
+    });
+  }
+}
+
+function copyNorekDirect(norek, nama, i) {
+  if (!norek) return;
+  const nd = document.getElementById('norekDisplay');
+  const nn = document.getElementById('norekNama');
+  if (nd) nd.value = norek;
+  if (nn) nn.textContent = nama;
+  navigator.clipboard.writeText(norek).then(() => {
+    showToast('✓ No.Rek ' + norek + ' di-copy!');
+    const btn = document.getElementById('copybtn-'+i);
+    if (btn) {
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '⎘ Copy'; btn.classList.remove('copied'); }, 1500);
+    }
+    const tr = document.getElementById('row-'+i);
+    if (tr) { tr.classList.add('just-copied'); setTimeout(() => tr.classList.remove('just-copied'), 800); }
+  });
+}
+
+function copyNorekBox() {
+  const val = document.getElementById('norekDisplay').value;
+  if (!val || val.includes('klik')) { showToast('Pilih dulu baris di tabel!'); return; }
+  navigator.clipboard.writeText(val).then(() => showToast('✓ No.Rek ' + val + ' di-copy!'));
+}
+
+function copyCol(field) {
+  if (rows.length === 0) { showToast('Tabel masih kosong!'); return; }
+  const vals = rows.map(r => r[field] || '').join('\n');
+  navigator.clipboard.writeText(vals).then(() => showToast('✓ Kolom ' + field.toUpperCase() + ' di-copy (' + rows.length + ' baris)'));
+}
+
+function copyAllToSheets() {
+  if (rows.length === 0) { showToast('Tabel masih kosong!'); return; }
+  const header = 'TANGGAL DIAMBIL\tBANK\tNOMOR REK\tNAMA\tJUMLAH NOMINAL\tUSER ID\tTIPE\tSALDO\tSPV\tWORKER\tCATATAN\tHISTORY';
+  const data = rows.map(r => [r.tgl,r.bank,r.norek,r.nama,r.nominal,r.userid,r.tipe||'',r.saldo||'',r.spv,r.worker,r.catatan,r.history].join('\t')).join('\n');
+  navigator.clipboard.writeText(header + '\n' + data).then(() => showToast('✓ ' + rows.length + ' data di-copy! Buka Google Sheets → Ctrl+V'));
+}
+
+function deleteRow(i) {
+  rows.splice(i, 1);
+  renderTable();
+}
+
+function clearAll() {
+  if (rows.length === 0) return;
+  if (confirm('Hapus semua ' + rows.length + ' data?')) { rows = []; renderTable(); }
+}
+
+function clearTextarea() {
+  document.getElementById('pasteArea').value = '';
+}
+
+// ============================================================
+// PARSE DATA
+// ============================================================
+// Pola tanggal ala "28-Jul-2026 20:15" yang menandai awal record baru
+const DATE_LINE_RE = /^(\d{1,2}-[A-Za-z]{3}-\d{4}\s+\d{1,2}:\d{2})/;
+
+function parseData(raw) {
+  if (!raw.trim()) { showToast('Data kosong!'); return; }
+
+  // Normalize
+  raw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  // Deteksi format baru: record dimulai dengan baris bertanggal "DD-Mon-YYYY HH:MM"
+  const hasDateLine = raw.split('\n').some(l => DATE_LINE_RE.test(l.trim()));
+  const hasHistoryTag = raw.split('\n').some(l => l.trim() === 'History');
+
+  if (hasDateLine && !hasHistoryTag) {
+    parseDataNewFormat(raw);
+    return;
+  }
+
+  // Split per record by "History"
+  const records = [];
+  let current = [];
+  raw.split('\n').forEach(line => {
+    const l = line.trim();
+    if (!l) return;
+    if (l === 'History') {
+      if (current.length) records.push([...current]);
+      current = [];
+    } else {
+      current.push(l);
+    }
+  });
+  if (current.length) records.push(current);
+
+  if (records.length === 0) { showToast('Tidak ada data yang bisa diparse!'); return; }
+
+  let added = 0;
+  records.forEach(rec => {
+    if (rows.length >= MAX) return;
+
+    // Expand tab-separated lines
+    const lines = [];
+    rec.forEach(ln => {
+      if (ln.includes('\t')) {
+        ln.split('\t').forEach(p => { const t = p.trim(); if (t) lines.push(t); });
+      } else {
+        lines.push(ln);
+      }
+    });
+
+    if (lines.length < 6) return;
+
+    const tgl      = lines[0];
+    const bank     = lines[1];
+    const norek    = lines[2].replace(/\D/g, '');
+
+    // Nama: hapus nama bank + nomor panjang
+    let nama = lines[3];
+    nama = nama.replace(/^(DANA|GOPAY|LINK AJA|SHOPEEPAY|SHOPEE)\s+/i, '');
+    nama = nama.replace(/\d{5,}/g, '').replace(/\s+/g, ' ').trim();
+
+    // Nominal: angka saja, tambah minus
+    const nominalClean = lines[4].replace(/\D/g, '');
+    const nominal = nominalClean ? '-' + nominalClean : '';
+
+    const userid  = lines[5] ? lines[5].replace(/\s/g, '') : '';
+    const spv     = lines[6] || '';
+    const worker  = lines[7] || '';
+    const catatan = lines[8] || '';
+
+    rows.push({ tgl, bank, norek, nama, nominal, userid, spv, worker, catatan, history: 'History' });
+    added++;
+  });
+
+  renderTable();
+  if (added > 0) showToast('✓ ' + added + ' data berhasil ditambahkan!');
+  else showToast('Gagal parse. Coba copy ulang data.');
+}
+
+// ============================================================
+// PARSE DATA - FORMAT BARU (VANSONCASH dll, dipisah per baris tanggal)
+// Contoh 1 record:
+// 28-Jul-2026 20:15\tkkjaaraymondworker\tVANSONCASH - VansonCash TO12\t
+//  (REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti
+// quinsa123
+// 402,000
+// DB\t
+// 1,785,244,557
+// Belum Ada
+// ============================================================
+function parseDataNewFormat(raw) {
+  const allLines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+
+  // Kelompokkan baris jadi per-record, record baru dimulai saat ketemu baris bertanggal
+  const blocks = [];
+  let current = null;
+  allLines.forEach(line => {
+    if (DATE_LINE_RE.test(line)) {
+      if (current) blocks.push(current);
+      current = [line];
+    } else if (current) {
+      current.push(line);
+    }
+  });
+  if (current) blocks.push(current);
+
+  if (blocks.length === 0) { showToast('Tidak ada data yang bisa diparse!'); return; }
+
+  let added = 0;
+  blocks.forEach(blockLines => {
+    if (rows.length >= MAX) return;
+
+    // Baris pertama: "tanggal\tworker\tbank" (bisa ada tab trailing kosong)
+    const firstParts = blockLines[0].split('\t').map(p => p.trim()).filter(p => p !== '');
+    const tgl    = firstParts[0] || '';
+    const worker = firstParts[1] || '';
+    const bank   = firstParts[2] || '';
+
+    const rest = blockLines.slice(1);
+    let nama = '', userid = '', nominal = '', tipe = '', saldo = '', catatan = '';
+
+    rest.forEach(line => {
+      const clean = line.replace(/\t/g, ' ').trim();
+      if (/REFF/i.test(clean)) {
+        // " (REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti" -> ambil teks setelah ")"
+        const idx = clean.lastIndexOf(')');
+        nama = idx >= 0 ? clean.slice(idx + 1).trim() : clean;
+      } else if (/^(DB|CR)$/i.test(clean)) {
+        tipe = clean.toUpperCase();
+      } else if (/^[\d.,]+$/.test(clean)) {
+        // Angka murni: nominal (lebih kecil) diisi duluan, lalu saldo (angka besar berikutnya)
+        const numeric = parseInt(clean.replace(/\D/g, ''), 10);
+        if (!nominal) {
+          nominal = '-' + clean.replace(/\D/g, '');
+        } else if (!saldo) {
+          saldo = clean;
+        }
+      } else if (!userid) {
+        userid = clean.replace(/\s/g, '');
+      } else {
+        catatan = clean;
+      }
+    });
+
+    rows.push({ tgl, bank, norek: '', nama, nominal, userid, tipe, saldo, spv: '', worker, catatan, history: '' });
+    added++;
+  });
+
+  renderTable();
+  if (added > 0) showToast('✓ ' + added + ' data berhasil ditambahkan (format baru)!');
+  else showToast('Gagal parse. Coba copy ulang data.');
+}
+
+function parseFromTextarea() {
+  const raw = document.getElementById('pasteArea').value;
+  parseData(raw);
+}
+
+// Ctrl+V langsung ke textarea otomatis parse
+document.getElementById('pasteArea').addEventListener('paste', function(e) {
+  setTimeout(() => parseFromTextarea(), 100);
+});
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+renderTable();
+</script>
+</body>
+</html>
