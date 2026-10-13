@@ -378,6 +378,11 @@
   .filter-btn[data-ewallet="OVO"].active { background: #a855f7; border-color: #a855f7; color: #fff; }
   .filter-btn[data-ewallet="SHOPEEPAY"].active { background: #ff7043; border-color: #ff7043; color: #fff; }
   .filter-btn[data-ewallet].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
+  /* Kontainer chip (biar membungkus rapi) */
+  .filter-chips { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1; }
+  /* Chip BANK saat aktif */
+  .filter-btn[data-bank].active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
+  .filter-btn[data-bank].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
 
   /* ===== WARNA PER JENIS E-WALLET (dipakai baris & panel) ===== */
   /* Aksen kiri + tint latar tiap baris sesuai e-wallet */
@@ -498,15 +503,10 @@
   </div>
 </div>
 
-<!-- FILTER E-WALLET -->
+<!-- FILTER E-WALLET / BANK -->
 <div class="filter-bar" id="filterBar">
-  <span class="filter-label">🔎 Filter E-Wallet:</span>
-  <button class="filter-btn active" data-ewallet="ALL" onclick="setFilter('ALL')">Semua <span class="cnt" id="cnt-ALL">0</span></button>
-  <button class="filter-btn" data-ewallet="DANA" onclick="setFilter('DANA')">DANA <span class="cnt" id="cnt-DANA">0</span></button>
-  <button class="filter-btn" data-ewallet="GOPAY" onclick="setFilter('GOPAY')">GOPAY <span class="cnt" id="cnt-GOPAY">0</span></button>
-  <button class="filter-btn" data-ewallet="LINKAJA" onclick="setFilter('LINKAJA')">LINKAJA <span class="cnt" id="cnt-LINKAJA">0</span></button>
-  <button class="filter-btn" data-ewallet="OVO" onclick="setFilter('OVO')">OVO <span class="cnt" id="cnt-OVO">0</span></button>
-  <button class="filter-btn" data-ewallet="SHOPEEPAY" onclick="setFilter('SHOPEEPAY')">SHOPEEPAY <span class="cnt" id="cnt-SHOPEEPAY">0</span></button>
+  <span class="filter-label">🔎 Filter E-Wallet / Bank:</span>
+  <div class="filter-chips" id="filterChips"></div>
 </div>
 
 <!-- PASTE AREA -->
@@ -565,45 +565,96 @@ function getEwalletType(b) {
   return null;
 }
 
+// Daftar bank umum Indonesia untuk deteksi (urut dari yang lebih spesifik)
+const BANK_LIST = [
+  'MANDIRI','BCA','BNI','BRI','BSI','BTN','CIMB','PERMATA','DANAMON','MEGA',
+  'PANIN','OCBC','MAYBANK','BUKOPIN','SEABANK','JAGO','BLU','NEO','ALLO',
+  'SINARMAS','BTPN','JENIUS','DBS','UOB','HSBC','MUAMALAT','BJB','SAMPOERNA',
+  'COMMBANK','QNB','NOBU','GANESHA','ARTHA','MASPION','DKI','NAGARI','SUMUT',
+  'JATIM','JATENG','BPD','MOTION','STANDARD CHARTERED'
+];
+
+// Deteksi nama bank dari teks; return kode bank atau null (null kalau e-wallet/kosong)
+function getBankType(b) {
+  if (!b) return null;
+  if (getEwalletType(b)) return null; // e-wallet ditangani terpisah
+  const u = b.toUpperCase();
+  for (const bk of BANK_LIST) {
+    if (u.includes(bk)) return bk;
+  }
+  return null;
+}
+
+// Tentukan kunci filter sebuah baris: e-wallet, bank terdeteksi, atau teks bank apa adanya
+function getFilterKey(b) {
+  const ew = getEwalletType(b);
+  if (ew) return ew;
+  const bk = getBankType(b);
+  if (bk) return bk;
+  const raw = (b || '').trim().toUpperCase();
+  return raw || 'LAINNYA';
+}
+
 // ============================================================
 // FILTER E-WALLET
 // ============================================================
 let currentFilter = 'ALL';
+const EWALLETS = ['DANA', 'GOPAY', 'LINKAJA', 'OVO', 'SHOPEEPAY'];
 
 function setFilter(type) {
   currentFilter = type;
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-ewallet') === type);
-  });
-  // Beri nuansa warna panel sesuai e-wallet; 'ALL' = tanpa nuansa
+  // Nuansa warna panel hanya untuk e-wallet; bank/ALL = netral
   const wrap = document.getElementById('tableWrap');
   if (wrap) {
-    if (type === 'ALL') wrap.removeAttribute('data-filter');
-    else wrap.setAttribute('data-filter', type);
+    if (EWALLETS.includes(type)) wrap.setAttribute('data-filter', type);
+    else wrap.removeAttribute('data-filter');
   }
   renderTable();
 }
 
 function rowMatchesFilter(r) {
   if (currentFilter === 'ALL') return true;
-  return getEwalletType(r.bank) === currentFilter;
+  return getFilterKey(r.bank) === currentFilter;
 }
 
-function updateFilterCounts() {
-  const counts = { ALL: rows.length, DANA: 0, GOPAY: 0, LINKAJA: 0, OVO: 0, SHOPEEPAY: 0 };
+// Bangun chip filter secara dinamis: Semua + e-wallet (tetap) + bank (sesuai data)
+function renderFilterChips() {
+  const box = document.getElementById('filterChips');
+  if (!box) return;
+
+  // Hitung jumlah per kunci
+  const counts = {};
   rows.forEach(r => {
-    const t = getEwalletType(r.bank);
-    if (t && counts[t] !== undefined) counts[t]++;
+    const k = getFilterKey(r.bank);
+    counts[k] = (counts[k] || 0) + 1;
   });
-  Object.keys(counts).forEach(k => {
-    const el = document.getElementById('cnt-' + k);
-    if (el) el.textContent = counts[k];
-  });
+
+  // Kelompok bank = semua kunci yang bukan e-wallet, urut jumlah terbanyak
+  const bankKeys = Object.keys(counts)
+    .filter(k => !EWALLETS.includes(k))
+    .sort((a, b) => counts[b] - counts[a]);
+
+  const chips = [];
+  // Semua
+  chips.push(chipHTML('ALL', 'Semua', rows.length, false));
+  // E-wallet (selalu tampil, dengan warna khasnya)
+  EWALLETS.forEach(k => chips.push(chipHTML(k, k, counts[k] || 0, true)));
+  // Bank (dinamis dari data)
+  bankKeys.forEach(k => chips.push(chipHTML(k, k, counts[k], false)));
+
+  box.innerHTML = chips.join('');
+}
+
+function chipHTML(key, label, count, isEwallet) {
+  const active = currentFilter === key ? ' active' : '';
+  const attr = isEwallet ? ` data-ewallet="${key}"` : (key === 'ALL' ? ' data-ewallet="ALL"' : ' data-bank="1"');
+  const safeKey = String(key).replace(/'/g, "\\'");
+  return `<button class="filter-btn${active}"${attr} onclick="setFilter('${safeKey}')">${label} <span class="cnt">${count}</span></button>`;
 }
 
 function renderTable() {
   const tbody = document.getElementById('tbody');
-  updateFilterCounts();
+  renderFilterChips();
   if (rows.length === 0) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">📭</div><p>Belum ada data. Paste data di kotak atas lalu klik Parse.</p></div></td></tr>`;
     updateStats();
@@ -726,8 +777,12 @@ function copyNorekBox() {
 
 function copyCol(field) {
   if (rows.length === 0) { showToast('Tabel masih kosong!'); return; }
-  const vals = rows.map(r => r[field] || '').join('\n');
-  navigator.clipboard.writeText(vals).then(() => showToast('✓ Kolom ' + field.toUpperCase() + ' di-copy (' + rows.length + ' baris)'));
+  // Hanya salin baris yang sedang tampil sesuai filter aktif
+  const shown = rows.filter(rowMatchesFilter);
+  if (shown.length === 0) { showToast('Tidak ada data pada filter ini!'); return; }
+  const vals = shown.map(r => r[field] || '').join('\n');
+  const ket = currentFilter === 'ALL' ? '' : ' [' + currentFilter + ']';
+  navigator.clipboard.writeText(vals).then(() => showToast('✓ Kolom ' + field.toUpperCase() + ket + ' di-copy (' + shown.length + ' baris)'));
 }
 
 function copyAllToSheets() {
