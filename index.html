@@ -825,14 +825,19 @@ function updateStats() {
 let sortDir = null; // null = belum diurutkan, 'desc' = terbaru->terlama, 'asc' = terlama->terbaru
 
 function parseTglToDate(tglStr) {
-  // Format: "28-Jul-2026 20:15"
+  // Mendukung "28-Jul-2026 20:15" (Inggris) dan "14 Okt 2026 01:59" (Indonesia)
   if (!tglStr) return null;
-  const bulan = { Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11 };
-  const m = tglStr.match(/(\d{1,2})-([A-Za-z]{3})-(\d{4})\s+(\d{1,2}):(\d{2})/);
+  const bulan = {
+    JAN:0, FEB:1, MAR:2, APR:3, MAY:4, MEI:4, JUN:5, JUL:6,
+    AUG:7, AGU:7, AGS:7, SEP:8, OCT:9, OKT:9, NOV:10, DEC:11, DES:11
+  };
+  // Pisahkan hari-bulan-tahun dengan "-" atau spasi
+  const m = tglStr.match(/(\d{1,2})[\s-]+([A-Za-z]{3})[\s-]+(\d{4})\s+(\d{1,2}):(\d{2})/);
   if (!m) return null;
   const [, d, mon, y, h, min] = m;
-  if (!(mon in bulan)) return null;
-  return new Date(+y, bulan[mon], +d, +h, +min);
+  const mu = mon.toUpperCase();
+  if (!(mu in bulan)) return null;
+  return new Date(+y, bulan[mu], +d, +h, +min);
 }
 
 function toggleSortByTgl() {
@@ -935,12 +940,18 @@ function clearTextarea() {
 // ============================================================
 // Pola tanggal ala "28-Jul-2026 20:15" yang menandai awal record baru
 const DATE_LINE_RE = /^(\d{1,2}-[A-Za-z]{3}-\d{4}\s+\d{1,2}:\d{2})/;
+// Pola tanggal Indonesia: "14 Okt 2026 01:59" (spasi, bulan Indonesia), bisa ada spasi di depan
+const DATE_LINE_ID_RE = /^\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+\d{1,2}:\d{2}/;
 
 function parseData(raw) {
   if (!raw.trim()) { showToast('Data kosong!'); return; }
 
   // Normalize
   raw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  // Format Indonesia: baris "DD Mon YYYY HH:MM\tBANK" sebagai awal record
+  const hasIndoDate = raw.split('\n').some(l => DATE_LINE_ID_RE.test(l));
+  if (hasIndoDate) { parseDataIndoFormat(raw); return; }
 
   // Deteksi format baru: record dimulai dengan baris bertanggal "DD-Mon-YYYY HH:MM"
   const hasDateLine = raw.split('\n').some(l => DATE_LINE_RE.test(l.trim()));
@@ -1082,6 +1093,66 @@ function parseDataNewFormat(raw) {
 
   renderTable();
   if (added > 0) showToast('✓ ' + added + ' data berhasil ditambahkan (format baru)!');
+  else showToast('Gagal parse. Coba copy ulang data.');
+}
+
+// ============================================================
+// PARSE FORMAT INDONESIA
+// Tiap record:
+//   14 Okt 2026 01:59 \t BCA \t      -> baris 0: tanggal + bank
+//    4372412490                       -> norek
+//   Hendra nurrohman                  -> nama
+//    136,000                          -> nominal
+//    cadok12                          -> user id
+//   kkjaaiftiqah (14-Okt 02:00)       -> worker/spv
+//   SUCCESS CALLBACK RECEIVED         -> status (catatan)
+//   History Mutasi / History          -> penanda (diabaikan)
+// ============================================================
+function parseDataIndoFormat(raw) {
+  const allLines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
+
+  // Kelompokkan jadi blok per record, record baru = baris bertanggal Indonesia
+  const blocks = [];
+  let current = null;
+  allLines.forEach(line => {
+    if (DATE_LINE_ID_RE.test(line)) {
+      if (current) blocks.push(current);
+      current = [line];
+    } else if (current) {
+      current.push(line);
+    }
+  });
+  if (current) blocks.push(current);
+
+  if (blocks.length === 0) { showToast('Tidak ada data yang bisa diparse!'); return; }
+
+  let added = 0;
+  blocks.forEach(b => {
+    if (rows.length >= MAX) return;
+
+    // Baris 0: "tanggal \t bank"
+    const p0 = b[0].split('\t').map(s => s.trim()).filter(s => s !== '');
+    const tgl = p0[0] || '';
+    const bank = (p0[1] || '').toUpperCase();
+
+    // Sisa baris (bersihkan tab), buang penanda History di akhir
+    let rest = b.slice(1).map(s => s.replace(/\t/g, ' ').trim());
+    rest = rest.filter(s => !/^history\b/i.test(s)); // hapus "History" / "History Mutasi"
+
+    const norek   = (rest[0] || '').replace(/\D/g, '');
+    const nama    = (rest[1] || '').replace(/\s+/g, ' ').trim();
+    const nomDig  = (rest[2] || '').replace(/\D/g, '');
+    const nominal = nomDig ? '-' + nomDig : '';
+    const userid  = (rest[3] || '').replace(/\s/g, '');
+    const worker  = (rest[4] || '');
+    const catatan = (rest[5] || '');
+
+    rows.push({ tgl, bank, norek, nama, nominal, userid, tipe: '', saldo: '', spv: '', worker, catatan, history: '' });
+    added++;
+  });
+
+  renderTable();
+  if (added > 0) showToast('✓ ' + added + ' data berhasil ditambahkan!');
   else showToast('Gagal parse. Coba copy ulang data.');
 }
 
