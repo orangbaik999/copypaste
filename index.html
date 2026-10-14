@@ -590,6 +590,56 @@ const BANK_LIST = [
   'JATIM','JATENG','BPD','MOTION','STANDARD CHARTERED'
 ];
 
+// ============================================================
+// BERSIHKAN NAMA -> hanya nama pemilik rekening
+// Contoh:
+//   "(REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti" -> "Nina wijayanti"
+//   "DANA 081234567890 Budi Santoso"                       -> "Budi Santoso"
+//   "BCA - a/n Siti Aminah"                                -> "Siti Aminah"
+// ============================================================
+const NAMA_PREFIX_TOKENS = [
+  'DANA','GOPAY','GO-PAY','GO PAY','LINK AJA','LINKAJA','OVO','SHOPEEPAY','SHOPEE PAY','SHOPEE',
+  ...BANK_LIST, 'BANK', 'VANSONCASH', 'E-WALLET', 'EWALLET'
+].sort((a, b) => b.length - a.length);
+const NAMA_AMBIGU = new Set(['DANA','MEGA','ARTHA','NEO','BLU','ALLO','JAGO','MOTION','GANESHA','NAGARI','NOBU','MASPION','PANIN']);
+
+function cleanNama(s) {
+  if (!s) return '';
+  let n = String(s).replace(/\t/g, ' ');
+  // buang isi kurung: (REFF ...), [..], {..}
+  n = n.replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, ' ');
+  // buang kode REFF/REF tanpa kurung
+  n = n.replace(/\bREFF?\b\s*[:#-]?\s*\S+/gi, ' ');
+  // buang label "a/n", "an.", "atas nama", "nama:", "pemilik:"
+  n = n.replace(/\b(a\s*\/\s*n|atas\s+nama|nama\s+pemilik|pemilik)\b\s*[:.]?/gi, ' ');
+  n = n.replace(/(^|\s)(an\.|nama\s*:)\s*/gi, ' ');
+  n = n.replace(/\s+/g, ' ').trim();
+  // buang nama bank/e-wallet di DEPAN saja.
+  // Kata yang juga sering jadi nama orang (Dana, Mega, Artha, dll) hanya dibuang kalau
+  // ditulis HURUF BESAR dan diikuti nomor / tanda pemisah, mis. "DANA 0812..." atau "MEGA - ...".
+  let changed = true;
+  while (changed) {
+    changed = false;
+    n = n.replace(/^[\s\-|:\/.,]+/, '');
+    for (const tk of NAMA_PREFIX_TOKENS) {
+      const esc = tk.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = NAMA_AMBIGU.has(tk)
+        ? new RegExp('^' + esc + '(?=\\s*(?:[\\-|:\\/.,]|\\S*\\d))')
+        : new RegExp('^' + esc + '(?=[\\s\\-|:\\/.,]|\\d|$)', 'i');
+      if (re.test(n)) {
+        const rest = n.replace(re, '').replace(/^[\s\-|:\/.,]+/, '');
+        if (rest) { n = rest; changed = true; }
+        break;
+      }
+    }
+  }
+  // buang kata yang mengandung angka (no rek, no HP, kode transaksi)
+  n = n.replace(/\S*\d\S*/g, ' ');
+  // rapikan sisa tanda baca di pinggir & spasi ganda
+  n = n.replace(/[\s\-|:\/.,]+$/, '').replace(/^[\s\-|:\/.,]+/, '');
+  return n.replace(/\s+/g, ' ').trim();
+}
+
 // Deteksi nama bank dari teks; return kode bank atau null (null kalau e-wallet/kosong)
 function getBankType(b) {
   if (!b) return null;
@@ -1000,9 +1050,7 @@ function parseData(raw) {
     const norek    = lines[2].replace(/\D/g, '');
 
     // Nama: hapus nama bank + nomor panjang
-    let nama = lines[3];
-    nama = nama.replace(/^(DANA|GOPAY|LINK AJA|SHOPEEPAY|SHOPEE)\s+/i, '');
-    nama = nama.replace(/\d{5,}/g, '').replace(/\s+/g, ' ').trim();
+    const nama = cleanNama(lines[3]);
 
     // Nominal: angka saja, tambah minus
     const nominalClean = lines[4].replace(/\D/g, '');
@@ -1068,8 +1116,7 @@ function parseDataNewFormat(raw) {
       const clean = line.replace(/\t/g, ' ').trim();
       if (/REFF/i.test(clean)) {
         // " (REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti" -> ambil teks setelah ")"
-        const idx = clean.lastIndexOf(')');
-        nama = idx >= 0 ? clean.slice(idx + 1).trim() : clean;
+        nama = cleanNama(clean);
       } else if (/^(DB|CR)$/i.test(clean)) {
         tipe = clean.toUpperCase();
       } else if (/^[\d.,]+$/.test(clean)) {
@@ -1140,7 +1187,7 @@ function parseDataIndoFormat(raw) {
     rest = rest.filter(s => !/^history\b/i.test(s)); // hapus "History" / "History Mutasi"
 
     const norek   = (rest[0] || '').replace(/\D/g, '');
-    const nama    = (rest[1] || '').replace(/\s+/g, ' ').trim();
+    const nama    = cleanNama(rest[1] || '');
     const nomDig  = (rest[2] || '').replace(/\D/g, '');
     const nominal = nomDig ? '-' + nomDig : '';
     const userid  = (rest[3] || '').replace(/\s/g, '');
