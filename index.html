@@ -495,9 +495,6 @@
     </div>
     <span class="counter" id="counter">0 / 5000 data</span>
   </div>
-  <div class="btn-group" style="margin:0">
-    <button class="btn btn-danger" onclick="clearAll()">🗑 Hapus Semua</button>
-  </div>
 </div>
 
 <!-- STATS -->
@@ -842,8 +839,8 @@ function renderTable() {
     const tint = rowTint(r.bank);
     const bankClr = bankCellColor(r.bank);
     return `
-    <tr id="row-${i}" onclick="selectRow(${i})" class="${ewCls}" style="${tint}">
-      <td style="text-align:center;color:var(--text2)">${i+1}</td>
+    <tr id="row-${i}" onclick="selectRow(${i}, false)" class="${ewCls}" style="${tint}">
+      <td style="text-align:center;color:var(--text2)" onclick="event.stopPropagation(); selectRow(${i})">${i+1}</td>
       <td>${r.tgl||''}</td>
       <td class="${getBankClass(r.bank)}" style="font-weight:600;${bankClr}">${r.bank||''}</td>
       <td>${r.nama||''}</td>
@@ -910,7 +907,8 @@ function toggleSortByTgl() {
   showToast(sortDir === 'desc' ? '✓ Diurutkan: Terbaru → Terlama' : '✓ Diurutkan: Terlama → Terbaru');
 }
 
-function selectRow(i) {
+// copyNorek = false → hanya tandai baris (klik selain kolom #, supaya No.Rek tidak ter-copy)
+function selectRow(i, copyNorek = true) {
   document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('selected'));
   const tr = document.getElementById('row-'+i);
   if (tr) tr.classList.add('selected');
@@ -920,7 +918,7 @@ function selectRow(i) {
   if (nd) nd.value = r.norek || '-';
   if (nn) nn.textContent = r.nama || '';
   // Auto copy
-  if (r.norek) {
+  if (copyNorek && r.norek) {
     navigator.clipboard.writeText(r.norek).then(() => {
       showToast('✓ No.Rek ' + r.norek + ' di-copy!');
       tr.classList.add('just-copied');
@@ -976,13 +974,14 @@ function deleteRow(i) {
   renderTable();
 }
 
-function clearAll() {
-  if (rows.length === 0) return;
-  if (confirm('Hapus semua ' + rows.length + ' data?')) { rows = []; renderTable(); }
-}
-
+// Bersihkan textarea sekaligus semua data hasil parse di tabel
 function clearTextarea() {
   document.getElementById('pasteArea').value = '';
+  if (rows.length === 0) return;
+  const n = rows.length;
+  rows = [];
+  renderTable();
+  showToast('✓ ' + n + ' data di tabel dihapus');
 }
 
 // ============================================================
