@@ -974,14 +974,19 @@ function deleteRow(i) {
   renderTable();
 }
 
-// Bersihkan textarea sekaligus semua data hasil parse di tabel
-function clearTextarea() {
-  document.getElementById('pasteArea').value = '';
+// Kosongkan semua data hasil parse di tabel
+function clearRows() {
   if (rows.length === 0) return;
   const n = rows.length;
   rows = [];
   renderTable();
   showToast('✓ ' + n + ' data di tabel dihapus');
+}
+
+// Bersihkan textarea sekaligus semua data hasil parse di tabel
+function clearTextarea() {
+  document.getElementById('pasteArea').value = '';
+  clearRows();
 }
 
 // ============================================================
@@ -1210,6 +1215,11 @@ function parseFromTextarea() {
 // Ctrl+V langsung ke textarea otomatis parse
 document.getElementById('pasteArea').addEventListener('paste', function(e) {
   setTimeout(() => parseFromTextarea(), 100);
+});
+
+// Textarea dikosongkan manual (Ctrl+A lalu Delete/Backspace/Ctrl+X) → data tabel ikut terhapus
+document.getElementById('pasteArea').addEventListener('input', function() {
+  if (this.value.trim() === '') clearRows();
 });
 
 // ============================================================
