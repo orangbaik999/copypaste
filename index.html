@@ -47,13 +47,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Scrollbar halus */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
   ::-webkit-scrollbar-thumb:hover { background: var(--surface3); background-clip: content-box; }
 
-  /* HEADER */
   .header {
     display: flex;
     align-items: center;
@@ -116,7 +114,6 @@
     white-space: nowrap;
   }
 
-  /* STAT CARDS */
   .stats-bar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -157,7 +154,6 @@
   .stat-value { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--danger); line-height: 1; }
   .stat-count { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--accent); line-height: 1; }
 
-  /* NOREK DISPLAY */
   .norek-bar {
     display: flex;
     align-items: center;
@@ -182,7 +178,6 @@
   }
   .norek-nama { font-size: 12px; color: var(--text2); white-space: nowrap; }
 
-  /* BUTTONS */
   .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .btn {
     padding: 8px 16px;
@@ -209,7 +204,6 @@
   .btn-copy-all { border-color: var(--accent2); color: var(--accent2); }
   .btn-copy-all:hover { background: rgba(0,153,255,0.1); }
 
-  /* TABLE WRAPPER */
   .table-wrap {
     border: 1px solid var(--border);
     border-radius: var(--radius);
@@ -226,7 +220,6 @@
     min-width: 1100px;
   }
 
-  /* STICKY HEADER */
   thead { position: sticky; top: 0; z-index: 10; }
   thead tr { background: linear-gradient(180deg, var(--surface3), var(--surface2)); }
   th {
@@ -272,7 +265,6 @@
   .btn-copy-col:active { transform: translateY(0); }
   .btn-copy-col.copied { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  /* ROWS */
   tbody tr {
     border-bottom: 1px solid var(--border-soft);
     cursor: pointer;
@@ -298,7 +290,6 @@
   }
   td:last-child { border-right: none; }
 
-  /* NOREK CELL - bisa di-select */
   .norek-cell {
     color: var(--accent2);
     font-weight: 600;
@@ -306,7 +297,6 @@
     cursor: text;
   }
 
-  /* COPY BTN PER BARIS */
   .btn-row-copy {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -323,7 +313,6 @@
   .btn-row-copy:hover { background: var(--accent); color: #000; }
   .btn-row-copy.copied { background: var(--accent); color: #000; }
 
-  /* TOMBOL HAPUS PER BARIS */
   .del-cell { padding: 5px 8px; }
   .btn-row-del {
     background: transparent;
@@ -343,14 +332,11 @@
   tbody tr:hover .btn-row-del { opacity: 1; }
   .btn-row-del:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
 
-  /* SEL YANG SEKALI KLIK LANGSUNG TER-COPY (Bank, Nama, User ID, Nominal) */
-  /* cursor khusus: panah putih + badge copy hijau (fallback ke cursor "copy" bawaan) */
   .copy-cell {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 28 28'%3E%3Cpath d='M3 2 L3 18.5 L7.2 14.6 L9.9 20.6 L12.4 19.5 L9.8 13.6 L15.5 13.6 Z' fill='white' stroke='%230b0d14' stroke-width='1.4' stroke-linejoin='round'/%3E%3Crect x='13.5' y='13.5' width='13.5' height='13.5' rx='3.5' fill='%2300e5a0' stroke='%230b0d14' stroke-width='1'/%3E%3Crect x='16.3' y='16.2' width='5.2' height='6.2' rx='1.2' fill='none' stroke='%230b0d14' stroke-width='1.3'/%3E%3Crect x='19' y='18.6' width='5.2' height='6.2' rx='1.2' fill='%2300e5a0' stroke='%230b0d14' stroke-width='1.3'/%3E%3C/svg%3E") 3 2, copy;
     padding-top: 5px;
     padding-bottom: 5px;
   }
-  /* sesaat setelah di-copy: badge cursor berubah jadi centang */
   .copy-cell.cell-copied {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 28 28'%3E%3Cpath d='M3 2 L3 18.5 L7.2 14.6 L9.9 20.6 L12.4 19.5 L9.8 13.6 L15.5 13.6 Z' fill='white' stroke='%230b0d14' stroke-width='1.4' stroke-linejoin='round'/%3E%3Crect x='13.5' y='13.5' width='13.5' height='13.5' rx='3.5' fill='%2300e5a0' stroke='%230b0d14' stroke-width='1'/%3E%3Cpath d='M16.8 20.4 L19.4 23 L23.8 17.8' fill='none' stroke='%230b0d14' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, copy;
   }
@@ -366,7 +352,6 @@
     vertical-align: middle;
     transition: background 0.15s, border-color 0.15s, color 0.15s;
   }
-  /* ikon copy kecil di kanan chip, muncul saat hover */
   .copy-chip::after {
     content: '⧉';
     position: absolute;
@@ -379,7 +364,6 @@
   }
   .copy-cell:hover .copy-chip { background: rgba(0,153,255,0.10); border-color: rgba(0,153,255,0.40); }
   .copy-cell:hover .copy-chip::after { opacity: 0.6; }
-  /* sesaat setelah di-copy: chip hijau + ikon jadi centang */
   .copy-cell.cell-copied .copy-chip {
     background: rgba(0,229,160,0.14);
     border-color: var(--accent);
@@ -396,7 +380,6 @@
   .bank-ovo { color: #a855f7; }
   .bank-shopee { color: #ff7043; }
 
-  /* FILTER E-WALLET / BANK */
   .filter-bar {
     display: flex;
     flex-direction: column;
@@ -448,7 +431,6 @@
   }
   .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #000; }
   .filter-btn.active .cnt { background: rgba(0,0,0,0.2); color: #000; }
-  /* Warna khas tiap e-wallet meski BELUM diklik (teks + border + tint latar) */
   .filter-btn[data-ewallet="DANA"]      { color: #4db4ff; border-color: rgba(51,170,255,0.55); background: rgba(51,170,255,0.10); }
   .filter-btn[data-ewallet="GOPAY"]     { color: #22cfe4; border-color: rgba(0,188,212,0.55); background: rgba(0,188,212,0.10); }
   .filter-btn[data-ewallet="LINKAJA"]   { color: #ff6b6b; border-color: rgba(255,82,82,0.55); background: rgba(255,82,82,0.10); }
@@ -460,22 +442,17 @@
   .filter-btn[data-ewallet="OVO"] .cnt,
   .filter-btn[data-ewallet="SHOPEEPAY"] .cnt { background: rgba(0,0,0,0.22); color: inherit; }
 
-  /* Saat aktif → warna penuh */
   .filter-btn[data-ewallet="DANA"].active { background: #33aaff; border-color: #33aaff; color: #fff; }
   .filter-btn[data-ewallet="GOPAY"].active { background: #00bcd4; border-color: #00bcd4; color: #fff; }
   .filter-btn[data-ewallet="LINKAJA"].active { background: #ff5252; border-color: #ff5252; color: #fff; }
   .filter-btn[data-ewallet="OVO"].active { background: #a855f7; border-color: #a855f7; color: #fff; }
   .filter-btn[data-ewallet="SHOPEEPAY"].active { background: #ff7043; border-color: #ff7043; color: #fff; }
   .filter-btn[data-ewallet].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
-  /* Kontainer chip (biar membungkus rapi) */
   .filter-chips { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
   .filter-btn .cnt { min-width: 16px; text-align: center; }
-  /* Chip BANK saat aktif */
   .filter-btn[data-bank].active { background: var(--accent2); border-color: var(--accent2); color: #fff; }
   .filter-btn[data-bank].active .cnt { background: rgba(0,0,0,0.25); color: #fff; }
 
-  /* ===== WARNA PER JENIS E-WALLET (dipakai baris & panel) ===== */
-  /* Aksen kiri + tint latar tiap baris sesuai e-wallet */
   tbody tr.ew-DANA      { box-shadow: inset 3px 0 0 #33aaff; background: rgba(51,170,255,0.05); }
   tbody tr.ew-GOPAY     { box-shadow: inset 3px 0 0 #00bcd4; background: rgba(0,188,212,0.05); }
   tbody tr.ew-LINKAJA   { box-shadow: inset 3px 0 0 #ff5252; background: rgba(255,82,82,0.05); }
@@ -487,11 +464,9 @@
   tbody tr.ew-OVO:hover       { background: rgba(168,85,247,0.12); }
   tbody tr.ew-SHOPEEPAY:hover { background: rgba(255,112,67,0.12); }
 
-  /* Saat sebuah filter aktif, panel & header tabel bernuansa warna filter (diset via JS) */
   .table-wrap { transition: border-color 0.2s, box-shadow 0.2s; }
   .table-wrap[data-tinted] thead tr { background: var(--panel-head, var(--surface2)); }
 
-  /* EMPTY STATE */
   .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -500,7 +475,6 @@
   .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
   .empty-state p { font-size: 13px; }
 
-  /* TOAST */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -521,7 +495,6 @@
   }
   .toast.show { transform: translateY(0); opacity: 1; }
 
-  /* PASTE AREA */
   .paste-area {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -563,7 +536,6 @@
   </div>
 </div>
 
-<!-- STATS -->
 <div class="stats-bar">
   <div class="stat-item">
     <div class="stat-ico">📊</div>
@@ -581,13 +553,11 @@
   </div>
 </div>
 
-<!-- FILTER E-WALLET / BANK -->
 <div class="filter-bar" id="filterBar">
   <span class="filter-label">🔎 Filter E-Wallet / Bank:</span>
   <div class="filter-chips" id="filterChips"></div>
 </div>
 
-<!-- PASTE AREA -->
 <div class="paste-area">
   <div class="paste-row">
     <span class="paste-label">📥 Paste data dari sistem di sini, lalu klik Parse:</span>
@@ -597,7 +567,6 @@
   <textarea id="pasteArea" placeholder="Paste data di sini... (bisa langsung Ctrl+V)"></textarea>
 </div>
 
-<!-- TABLE -->
 <div class="table-wrap" id="tableWrap">
   <table id="mainTable">
     <thead>
@@ -632,8 +601,6 @@ function getBankClass(b) {
   return '';
 }
 
-// Deteksi jenis e-wallet dari teks bank; return salah satu tipe atau null
-// Pakai batas kata supaya DANA tidak keliru cocok ke DANAMON, dll.
 function getEwalletType(b) {
   if (!b) return null;
   const u = b.toUpperCase();
@@ -645,7 +612,6 @@ function getEwalletType(b) {
   return null;
 }
 
-// Daftar bank umum Indonesia untuk deteksi (urut dari yang lebih spesifik)
 const BANK_LIST = [
   'MANDIRI','BCA','BNI','BRI','BSI','BTN','CIMB','PERMATA','DANAMON','MEGA',
   'PANIN','OCBC','MAYBANK','BUKOPIN','SEABANK','JAGO','BLU','NEO','ALLO',
@@ -654,13 +620,6 @@ const BANK_LIST = [
   'JATIM','JATENG','BPD','MOTION','STANDARD CHARTERED'
 ];
 
-// ============================================================
-// BERSIHKAN NAMA -> hanya nama pemilik rekening
-// Contoh:
-//   "(REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti" -> "Nina wijayanti"
-//   "DANA 081234567890 Budi Santoso"                       -> "Budi Santoso"
-//   "BCA - a/n Siti Aminah"                                -> "Siti Aminah"
-// ============================================================
 const NAMA_PREFIX_TOKENS = [
   'DANA','GOPAY','GO-PAY','GO PAY','LINK AJA','LINKAJA','OVO','SHOPEEPAY','SHOPEE PAY','SHOPEE',
   ...BANK_LIST, 'BANK', 'VANSONCASH', 'E-WALLET', 'EWALLET'
@@ -670,17 +629,11 @@ const NAMA_AMBIGU = new Set(['DANA','MEGA','ARTHA','NEO','BLU','ALLO','JAGO','MO
 function cleanNama(s) {
   if (!s) return '';
   let n = String(s).replace(/\t/g, ' ');
-  // buang isi kurung: (REFF ...), [..], {..}
   n = n.replace(/\([^)]*\)|\[[^\]]*\]|\{[^}]*\}/g, ' ');
-  // buang kode REFF/REF tanpa kurung
   n = n.replace(/\bREFF?\b\s*[:#-]?\s*\S+/gi, ' ');
-  // buang label "a/n", "an.", "atas nama", "nama:", "pemilik:"
   n = n.replace(/\b(a\s*\/\s*n|atas\s+nama|nama\s+pemilik|pemilik)\b\s*[:.]?/gi, ' ');
   n = n.replace(/(^|\s)(an\.|nama\s*:)\s*/gi, ' ');
   n = n.replace(/\s+/g, ' ').trim();
-  // buang nama bank/e-wallet di DEPAN saja.
-  // Kata yang juga sering jadi nama orang (Dana, Mega, Artha, dll) hanya dibuang kalau
-  // ditulis HURUF BESAR dan diikuti nomor / tanda pemisah, mis. "DANA 0812..." atau "MEGA - ...".
   let changed = true;
   while (changed) {
     changed = false;
@@ -697,17 +650,14 @@ function cleanNama(s) {
       }
     }
   }
-  // buang kata yang mengandung angka (no rek, no HP, kode transaksi)
   n = n.replace(/\S*\d\S*/g, ' ');
-  // rapikan sisa tanda baca di pinggir & spasi ganda
   n = n.replace(/[\s\-|:\/.,]+$/, '').replace(/^[\s\-|:\/.,]+/, '');
   return n.replace(/\s+/g, ' ').trim();
 }
 
-// Deteksi nama bank dari teks; return kode bank atau null (null kalau e-wallet/kosong)
 function getBankType(b) {
   if (!b) return null;
-  if (getEwalletType(b)) return null; // e-wallet ditangani terpisah
+  if (getEwalletType(b)) return null;
   const u = b.toUpperCase();
   for (const bk of BANK_LIST) {
     if (u.includes(bk)) return bk;
@@ -715,7 +665,6 @@ function getBankType(b) {
   return null;
 }
 
-// Tentukan kunci filter sebuah baris: e-wallet, bank terdeteksi, atau teks bank apa adanya
 function getFilterKey(b) {
   const ew = getEwalletType(b);
   if (ew) return ew;
@@ -725,13 +674,9 @@ function getFilterKey(b) {
   return raw || 'LAINNYA';
 }
 
-// ============================================================
-// FILTER E-WALLET
-// ============================================================
 let currentFilter = 'ALL';
 const EWALLETS = ['DANA', 'GOPAY', 'LINKAJA', 'OVO', 'SHOPEEPAY'];
 
-// Daftar & URUTAN filter tetap (sesuai permintaan). ew:true = e-wallet (warna brand)
 const FILTERS = [
   { key: 'BCA',       match: ['BCA'] },
   { key: 'BRI',       match: ['BRI'] },
@@ -757,7 +702,6 @@ FILTERS.forEach(f => { FILTER_MAP[f.key] = f; });
 
 function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-// Cek apakah teks bank cocok dengan sebuah key filter
 function bankMatchesKey(bank, key) {
   if (key === 'ALL') return true;
   const u = (bank || '').toUpperCase();
@@ -769,10 +713,7 @@ function isCoveredByFilters(bank) {
   return FILTERS.some(f => bankMatchesKey(bank, f.key));
 }
 
-// ---- WARNA ----
-// Warna brand e-wallet (dipakai chip & baris)
-const EW_COLORS = { DANA: 203, GOPAY: 187, LINKAJA: 0, OVO: 273, SHOPEEPAY: 16 }; // hue HSL
-// Palet hue terpilih (cukup berbeda) untuk bank di daftar tetap
+const EW_COLORS = { DANA: 203, GOPAY: 187, LINKAJA: 0, OVO: 273, SHOPEEPAY: 16 };
 const BANK_HUES = [210, 28, 158, 330, 262, 45, 142, 352, 192, 68, 300, 118, 238, 15, 95];
 const HUE_MAP = {};
 (function () {
@@ -785,24 +726,20 @@ const HUE_MAP = {};
 
 function hueForKey(key) {
   if (HUE_MAP[key] !== undefined) return HUE_MAP[key];
-  // fallback: hash nama jadi hue
   let h = 0;
   for (let i = 0; i < key.length; i++) { h = (h * 31 + key.charCodeAt(i)) >>> 0; }
   return h % 360;
 }
 
-// Tentukan key filter untuk sebuah baris (petakan ke daftar tetap bila cocok, mis. MANDIRI→MDR)
 function rowFilterKey(bank) {
   for (const f of FILTERS) { if (bankMatchesKey(bank, f.key)) return f.key; }
   return getFilterKey(bank);
 }
 
-// Apakah bank ini "dikenali" (e-wallet / bank di daftar / bank umum)?
 function isKnownBank(bank) {
   return !!getEwalletType(bank) || !!getBankType(bank) || FILTERS.some(f => bankMatchesKey(bank, f.key));
 }
 
-// Gaya tint baris (aksen kiri + latar tipis) untuk bank. E-wallet tetap pakai class ew-*
 function rowTint(bank) {
   if (getEwalletType(bank)) return '';
   if (!isKnownBank(bank)) return '';
@@ -810,7 +747,6 @@ function rowTint(bank) {
   return `box-shadow: inset 4px 0 0 hsl(${h},58%,55%); background: hsla(${h},70%,55%,0.07);`;
 }
 
-// Warna teks sel Bank untuk bank (e-wallet sudah ditangani getBankClass)
 function bankCellColor(bank) {
   if (getEwalletType(bank)) return '';
   if (!isKnownBank(bank)) return '';
@@ -820,7 +756,6 @@ function bankCellColor(bank) {
 
 function setFilter(type) {
   currentFilter = type;
-  // Nuansa warna panel sesuai filter aktif (bank & e-wallet); ALL = netral
   const wrap = document.getElementById('tableWrap');
   if (wrap) {
     if (type === 'ALL') {
@@ -843,7 +778,6 @@ function rowMatchesFilter(r) {
   return bankMatchesKey(r.bank, currentFilter);
 }
 
-// Bangun chip filter: Semua + daftar tetap (urut sesuai FILTERS) + bank lain yg ada di data
 function renderFilterChips() {
   const box = document.getElementById('filterChips');
   if (!box) return;
@@ -852,10 +786,8 @@ function renderFilterChips() {
 
   const chips = [];
   chips.push(chipHTML('ALL', 'Semua', rows.length, false));
-  // Daftar tetap sesuai urutan permintaan
   FILTERS.forEach(f => chips.push(chipHTML(f.key, f.key, countKey(f.key), !!f.ew)));
 
-  // Bank/e-wallet lain yang ada di data tapi tidak ada di daftar tetap (agar data tak tersembunyi)
   const extra = {};
   rows.forEach(r => {
     if (isCoveredByFilters(r.bank)) return;
@@ -869,7 +801,6 @@ function renderFilterChips() {
   box.innerHTML = chips.join('');
 }
 
-// Gaya warna chip bank berdasarkan hue terpilih (konsisten dengan warna baris)
 function chipColorStyle(key, active) {
   const h = hueForKey(String(key));
   if (active) return `background:hsl(${h},58%,48%);border-color:hsl(${h},58%,48%);color:#fff;`;
@@ -894,7 +825,6 @@ function renderTable() {
     updateStats();
     return;
   }
-  // Pasangkan baris dengan indeks aslinya lalu filter sesuai e-wallet terpilih
   const visible = rows.map((r, i) => ({ r, i })).filter(({ r }) => rowMatchesFilter(r));
   if (visible.length === 0) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="icon">🔎</div><p>Tidak ada data untuk filter <b>${currentFilter}</b>.</p></div></td></tr>`;
@@ -921,9 +851,7 @@ function renderTable() {
 }
 
 function updateStats() {
-  // Counter kapasitas selalu memakai total seluruh data
   document.getElementById('counter').textContent = rows.length + ' / ' + MAX + ' data';
-  // Statistik mengikuti filter e-wallet yang sedang aktif
   const shown = rows.filter(rowMatchesFilter);
   document.getElementById('statCount').textContent = shown.length;
   let total = 0;
@@ -934,19 +862,14 @@ function updateStats() {
   document.getElementById('statNominal').textContent = '- Rp ' + total.toLocaleString('id-ID');
 }
 
-// ============================================================
-// SORT BY TANGGAL/JAM
-// ============================================================
-let sortDir = null; // null = belum diurutkan, 'desc' = terbaru->terlama, 'asc' = terlama->terbaru
+let sortDir = null;
 
 function parseTglToDate(tglStr) {
-  // Mendukung "28-Jul-2026 20:15" (Inggris) dan "14 Okt 2026 01:59" (Indonesia)
   if (!tglStr) return null;
   const bulan = {
     JAN:0, FEB:1, MAR:2, APR:3, MAY:4, MEI:4, JUN:5, JUL:6,
     AUG:7, AGU:7, AGS:7, SEP:8, OCT:9, OKT:9, NOV:10, DEC:11, DES:11
   };
-  // Pisahkan hari-bulan-tahun dengan "-" atau spasi
   const m = tglStr.match(/(\d{1,2})[\s-]+([A-Za-z]{3})[\s-]+(\d{4})\s+(\d{1,2}):(\d{2})/);
   if (!m) return null;
   const [, d, mon, y, h, min] = m;
@@ -958,7 +881,6 @@ function parseTglToDate(tglStr) {
 function toggleSortByTgl() {
   if (rows.length === 0) { showToast('Tidak ada data untuk diurutkan!'); return; }
 
-  // Cycle: null/asc -> desc (terbaru->terlama) -> asc (terlama->terbaru) -> desc ...
   sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
 
   rows.sort((a, b) => {
@@ -975,7 +897,6 @@ function toggleSortByTgl() {
   showToast(sortDir === 'desc' ? '✓ Diurutkan: Terbaru → Terlama' : '✓ Diurutkan: Terlama → Terbaru');
 }
 
-// copyNorek = false → hanya tandai baris (klik selain kolom #, supaya No.Rek tidak ter-copy)
 function selectRow(i, copyNorek = true) {
   document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('selected'));
   const tr = document.getElementById('row-'+i);
@@ -985,7 +906,6 @@ function selectRow(i, copyNorek = true) {
   const nn = document.getElementById('norekNama');
   if (nd) nd.value = r.norek || '-';
   if (nn) nn.textContent = r.nama || '';
-  // Auto copy
   if (copyNorek && r.norek) {
     navigator.clipboard.writeText(r.norek).then(() => {
       showToast('✓ No.Rek ' + r.norek + ' di-copy!');
@@ -995,7 +915,6 @@ function selectRow(i, copyNorek = true) {
   }
 }
 
-// Klik sekali di sel Bank / Nama / User ID / Nominal → isi sel itu langsung di-copy
 const CELL_LABEL = { bank: 'Bank', nama: 'Nama', userid: 'User ID', nominal: 'Nominal' };
 function copyCell(i, field, td) {
   selectRow(i, false);
@@ -1035,7 +954,6 @@ function copyNorekBox() {
 
 function copyCol(field) {
   if (rows.length === 0) { showToast('Tabel masih kosong!'); return; }
-  // Hanya salin baris yang sedang tampil sesuai filter aktif
   const shown = rows.filter(rowMatchesFilter);
   if (shown.length === 0) { showToast('Tidak ada data pada filter ini!'); return; }
   const vals = shown.map(r => r[field] || '').join('\n');
@@ -1055,7 +973,6 @@ function deleteRow(i) {
   renderTable();
 }
 
-// Kosongkan semua data hasil parse di tabel
 function clearRows() {
   if (rows.length === 0) return;
   const n = rows.length;
@@ -1064,31 +981,22 @@ function clearRows() {
   showToast('✓ ' + n + ' data di tabel dihapus');
 }
 
-// Bersihkan textarea sekaligus semua data hasil parse di tabel
 function clearTextarea() {
   document.getElementById('pasteArea').value = '';
   clearRows();
 }
 
-// ============================================================
-// PARSE DATA
-// ============================================================
-// Pola tanggal ala "28-Jul-2026 20:15" yang menandai awal record baru
 const DATE_LINE_RE = /^(\d{1,2}-[A-Za-z]{3}-\d{4}\s+\d{1,2}:\d{2})/;
-// Pola tanggal Indonesia: "14 Okt 2026 01:59" (spasi, bulan Indonesia), bisa ada spasi di depan
 const DATE_LINE_ID_RE = /^\s*\d{1,2}\s+[A-Za-z]{3}\s+\d{4}\s+\d{1,2}:\d{2}/;
 
 function parseData(raw) {
   if (!raw.trim()) { showToast('Data kosong!'); return; }
 
-  // Normalize
   raw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-  // Format Indonesia: baris "DD Mon YYYY HH:MM\tBANK" sebagai awal record
   const hasIndoDate = raw.split('\n').some(l => DATE_LINE_ID_RE.test(l));
   if (hasIndoDate) { parseDataIndoFormat(raw); return; }
 
-  // Deteksi format baru: record dimulai dengan baris bertanggal "DD-Mon-YYYY HH:MM"
   const hasDateLine = raw.split('\n').some(l => DATE_LINE_RE.test(l.trim()));
   const hasHistoryTag = raw.split('\n').some(l => l.trim() === 'History');
 
@@ -1097,7 +1005,6 @@ function parseData(raw) {
     return;
   }
 
-  // Split per record by "History"
   const records = [];
   let current = [];
   raw.split('\n').forEach(line => {
@@ -1118,7 +1025,6 @@ function parseData(raw) {
   records.forEach(rec => {
     if (rows.length >= MAX) return;
 
-    // Expand tab-separated lines
     const lines = [];
     rec.forEach(ln => {
       if (ln.includes('\t')) {
@@ -1134,10 +1040,8 @@ function parseData(raw) {
     const bank     = lines[1];
     const norek    = lines[2].replace(/\D/g, '');
 
-    // Nama: hapus nama bank + nomor panjang
     const nama = cleanNama(lines[3]);
 
-    // Nominal: angka saja, tambah minus
     const nominalClean = lines[4].replace(/\D/g, '');
     const nominal = nominalClean ? '-' + nominalClean : '';
 
@@ -1155,21 +1059,9 @@ function parseData(raw) {
   else showToast('Gagal parse. Coba copy ulang data.');
 }
 
-// ============================================================
-// PARSE DATA - FORMAT BARU (VANSONCASH dll, dipisah per baris tanggal)
-// Contoh 1 record:
-// 28-Jul-2026 20:15\tkkjaaraymondworker\tVANSONCASH - VansonCash TO12\t
-//  (REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti
-// quinsa123
-// 402,000
-// DB\t
-// 1,785,244,557
-// Belum Ada
-// ============================================================
 function parseDataNewFormat(raw) {
   const allLines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
 
-  // Kelompokkan baris jadi per-record, record baru dimulai saat ketemu baris bertanggal
   const blocks = [];
   let current = null;
   allLines.forEach(line => {
@@ -1188,7 +1080,6 @@ function parseDataNewFormat(raw) {
   blocks.forEach(blockLines => {
     if (rows.length >= MAX) return;
 
-    // Baris pertama: "tanggal\tworker\tbank" (bisa ada tab trailing kosong)
     const firstParts = blockLines[0].split('\t').map(p => p.trim()).filter(p => p !== '');
     const tgl    = firstParts[0] || '';
     const worker = firstParts[1] || '';
@@ -1200,12 +1091,10 @@ function parseDataNewFormat(raw) {
     rest.forEach(line => {
       const clean = line.replace(/\t/g, ' ').trim();
       if (/REFF/i.test(clean)) {
-        // " (REFF WDVANSONTO12-OUTYTZjNzg5.17150) Nina wijayanti" -> ambil teks setelah ")"
         nama = cleanNama(clean);
       } else if (/^(DB|CR)$/i.test(clean)) {
         tipe = clean.toUpperCase();
       } else if (/^[\d.,]+$/.test(clean)) {
-        // Angka murni: nominal (lebih kecil) diisi duluan, lalu saldo (angka besar berikutnya)
         const numeric = parseInt(clean.replace(/\D/g, ''), 10);
         if (!nominal) {
           nominal = '-' + clean.replace(/\D/g, '');
@@ -1228,22 +1117,9 @@ function parseDataNewFormat(raw) {
   else showToast('Gagal parse. Coba copy ulang data.');
 }
 
-// ============================================================
-// PARSE FORMAT INDONESIA
-// Tiap record:
-//   14 Okt 2026 01:59 \t BCA \t      -> baris 0: tanggal + bank
-//    4372412490                       -> norek
-//   Hendra nurrohman                  -> nama
-//    136,000                          -> nominal
-//    cadok12                          -> user id
-//   kkjaaiftiqah (14-Okt 02:00)       -> worker/spv
-//   SUCCESS CALLBACK RECEIVED         -> status (catatan)
-//   History Mutasi / History          -> penanda (diabaikan)
-// ============================================================
 function parseDataIndoFormat(raw) {
   const allLines = raw.split('\n').map(l => l.trim()).filter(l => l !== '');
 
-  // Kelompokkan jadi blok per record, record baru = baris bertanggal Indonesia
   const blocks = [];
   let current = null;
   allLines.forEach(line => {
@@ -1262,14 +1138,12 @@ function parseDataIndoFormat(raw) {
   blocks.forEach(b => {
     if (rows.length >= MAX) return;
 
-    // Baris 0: "tanggal \t bank"
     const p0 = b[0].split('\t').map(s => s.trim()).filter(s => s !== '');
     const tgl = p0[0] || '';
     const bank = (p0[1] || '').toUpperCase();
 
-    // Sisa baris (bersihkan tab), buang penanda History di akhir
     let rest = b.slice(1).map(s => s.replace(/\t/g, ' ').trim());
-    rest = rest.filter(s => !/^history\b/i.test(s)); // hapus "History" / "History Mutasi"
+    rest = rest.filter(s => !/^history\b/i.test(s));
 
     const norek   = (rest[0] || '').replace(/\D/g, '');
     const nama    = cleanNama(rest[1] || '');
@@ -1293,9 +1167,6 @@ function parseFromTextarea() {
   parseData(raw);
 }
 
-// Ctrl+V di kotak paste langsung parse — hanya teks yang baru di-paste (data lama tidak dobel).
-// Kalau isi kotak diblok semua (Ctrl+A) atau kotak masih kosong → data lama di tabel DIGANTI data baru.
-// Kalau paste di akhir/tengah teks yang sudah ada → data baru DITAMBAHKAN ke tabel.
 document.getElementById('pasteArea').addEventListener('paste', function(e) {
   const pasted = (e.clipboardData || window.clipboardData).getData('text');
   if (!pasted.trim()) return;
@@ -1308,14 +1179,10 @@ document.getElementById('pasteArea').addEventListener('paste', function(e) {
   }, 50);
 });
 
-// Textarea dikosongkan manual (Ctrl+A lalu Delete/Backspace/Ctrl+X) → data tabel ikut terhapus
 document.getElementById('pasteArea').addEventListener('input', function() {
   if (this.value.trim() === '') clearRows();
 });
 
-// ============================================================
-// TOAST
-// ============================================================
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1327,24 +1194,15 @@ function showToast(msg) {
 
 renderTable();
 
-// ============================================================
-// PROTEKSI RINGAN (penghalang kasual — bukan pengaman mutlak)
-// Memblokir klik-kanan & beberapa shortcut (Ctrl+U/S, F12, dsb.)
-// Catatan: HTML statis tetap bisa diambil oleh yang paham.
-// ============================================================
 (function () {
-  // Blokir klik kanan (context menu)
   document.addEventListener('contextmenu', e => e.preventDefault());
 
   document.addEventListener('keydown', function (e) {
     const key = (e.key || '').toLowerCase();
-    // F12 (DevTools)
     if (key === 'f12') { e.preventDefault(); return false; }
-    // Ctrl+U (view source), Ctrl+S (save), Ctrl+P (print)
     if (e.ctrlKey && !e.shiftKey && !e.altKey && ['u', 's', 'p'].includes(key)) {
       e.preventDefault(); return false;
     }
-    // Ctrl+Shift+I / J / C (DevTools, console, inspect)
     if (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].includes(key)) {
       e.preventDefault(); return false;
     }
