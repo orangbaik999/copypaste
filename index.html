@@ -1293,9 +1293,19 @@ function parseFromTextarea() {
   parseData(raw);
 }
 
-// Ctrl+V langsung ke textarea otomatis parse
+// Ctrl+V di kotak paste langsung parse — hanya teks yang baru di-paste (data lama tidak dobel).
+// Kalau isi kotak diblok semua (Ctrl+A) atau kotak masih kosong → data lama di tabel DIGANTI data baru.
+// Kalau paste di akhir/tengah teks yang sudah ada → data baru DITAMBAHKAN ke tabel.
 document.getElementById('pasteArea').addEventListener('paste', function(e) {
-  setTimeout(() => parseFromTextarea(), 100);
+  const pasted = (e.clipboardData || window.clipboardData).getData('text');
+  if (!pasted.trim()) return;
+  const replaceAll = this.value.trim() === '' || (this.selectionStart === 0 && this.selectionEnd === this.value.length);
+  const hadData = rows.length > 0;
+  setTimeout(() => {
+    if (replaceAll) { rows = []; renderTable(); }
+    parseData(pasted);
+    if (replaceAll && hadData && rows.length) showToast('✓ Data lama diganti: ' + rows.length + ' data baru');
+  }, 50);
 });
 
 // Textarea dikosongkan manual (Ctrl+A lalu Delete/Backspace/Ctrl+X) → data tabel ikut terhapus
